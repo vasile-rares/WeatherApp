@@ -3,6 +3,7 @@ package org.example;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 class Location {
     private String name;
@@ -44,8 +45,9 @@ class Location {
     public String getUpcomingWeather() {
         LocalDate today = LocalDate.now();
         List<Forecast> filteredForecast = forecast.stream()
-                .filter(f -> LocalDate.parse(f.date).isEqual(today) || LocalDate.parse(f.date).isAfter(today))
-                .limit(4)
+                .filter(f -> !LocalDate.parse(f.getDate()).isBefore(today))
+                .sorted(Comparator.comparing(f -> LocalDate.parse(f.getDate())))
+                .limit(3)
                 .collect(Collectors.toList());
 
         StringBuilder sb = new StringBuilder("Locatie: ").append(name).append("\n");
@@ -53,16 +55,9 @@ class Location {
         if (filteredForecast.isEmpty()) {
             sb.append("Nu exista prognoza pentru ziua curenta.\n");
         } else {
-            boolean isFirstDay = true;
             for (Forecast f : filteredForecast) {
-                if (LocalDate.parse(f.date).isEqual(today) && isFirstDay) {
-                    sb.append("Prognoza pentru ziua de azi: ")
-                            .append(f.weather).append(", ").append(f.temperature).append("°C\n");
-                    isFirstDay = false;
-                } else {
-                    sb.append("Prognoza pentru ").append(f.date).append(": ")
-                            .append(f.weather).append(", ").append(f.temperature).append("°C\n");
-                }
+                String datePrefix = (LocalDate.parse(f.getDate()).isEqual(today)) ? "Prognoza pentru ziua de azi: " : "Prognoza pentru " + f.getDate() + ": ";
+                sb.append(datePrefix).append(f.getWeather()).append(", ").append(f.getTemperature()).append("°C\n");
             }
         }
 

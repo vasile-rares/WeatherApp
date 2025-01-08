@@ -1,13 +1,25 @@
 package org.example;
 
 class Forecast {
-    String date;
-    String weather;
-    double temperature;
+    private final String date;
+    private final String weather;
+    private final double temperature;
 
     public Forecast(String date, String weather, double temperature) {
         this.date = date;
         this.weather = weather;
         this.temperature = temperature;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getWeather() {
+        return weather;
+    }
+
+    public double getTemperature() {
+        return temperature;
     }
 }
