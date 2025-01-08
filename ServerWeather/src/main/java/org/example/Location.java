@@ -41,7 +41,7 @@ class Location {
         return forecast;
     }
 
-    public String getCurrentDayWeatherAndNext3Days() {
+    public String getUpcomingWeather() {
         LocalDate today = LocalDate.now();
         List<Forecast> filteredForecast = forecast.stream()
                 .filter(f -> LocalDate.parse(f.date).isEqual(today) || LocalDate.parse(f.date).isAfter(today))

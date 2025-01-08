@@ -4,64 +4,62 @@ import java.io.*;
 import java.net.Socket;
 
 public class WeatherClient {
+    private static final int SERVER_PORT = 8080;
     public static void main(String[] args) {
-        try (Socket socket = new Socket("localhost", 12345)) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-
+        try (Socket clientSocket = new Socket("localhost", SERVER_PORT)) {
+            BufferedReader serverInput = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            PrintWriter serverOutput = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-            String location;
-            boolean isAdminMode = false;
+            boolean isAdmin = false;
 
             while (true) {
-                System.out.print("Introduceți locația dorită (sau 'exit' pentru a închide, 'admin' pentru admin): ");
-                location = userInput.readLine();
+                System.out.print("Introduceti locatia dorita (sau 'exit' pentru a inchide, 'admin' pentru admin): ");
+                String command = userInput.readLine();
 
-                if ("exit".equalsIgnoreCase(location)) {
-                    out.println(location);
+                if ("exit".equalsIgnoreCase(command)) {
+                    serverOutput.println(command);
                     break;
                 }
 
-                if ("admin".equalsIgnoreCase(location)) {
-                    System.out.print("Introduceți parola pentru modul admin: ");
+                if ("admin".equalsIgnoreCase(command)) {
+                    System.out.print("Introduceti parola pentru modul admin: ");
                     String password = userInput.readLine();
-                    out.println(location);
-                    out.println(password);
+                    serverOutput.println(command);
+                    serverOutput.println(password);
 
-                    String adminResponse = in.readLine();
+                    String adminResponse = serverInput.readLine();
+                    System.out.println("Raspunsul serverului: " + adminResponse);
                     if ("ACCEPTED".equalsIgnoreCase(adminResponse)) {
-                        isAdminMode = true;
-                        handleAdminCommands(in, out, userInput);
-                        isAdminMode = false;
+                        isAdmin = true;
+                        handleAdminCommands(serverInput, serverOutput, userInput);
+                        isAdmin = false;
                     } else {
-                        System.out.println("Parolă incorectă. Încercare eșuată.");
+                        System.out.println("Parola incorecta. Incercare esuata.");
                     }
                 } else {
-                    if (isAdminMode) {
-                        System.out.println("Trebuie să ieși din modul admin înainte de a cere o locație.");
+                    if (isAdmin) {
+                        System.out.println("Trebuie sa iesi din modul admin inainte de a cere o locatie.");
                         continue;
                     }
 
-                    // Trimite locația către server
-                    out.println(location);
-
-                    // Opțiune pentru raza de căutare
-                    System.out.print("Doriți să specificați o rază de căutare? (da/nu): ");
-                    String specifyRadius = userInput.readLine();
-                    if ("da".equalsIgnoreCase(specifyRadius)) {
-                        System.out.print("Introduceți raza de căutare (în kilometri): ");
-                        String radius = userInput.readLine();
-                        out.println(radius);
-                    } else {
-                        out.println("0"); // Rază implicită (0 km)
-                    }
-
-                    // Primește prognoza meteo de la server
+                    String userLocation = command;
+                    serverOutput.println(userLocation);
+                    
+//                    System.out.print("Doriti sa specificati o raza de cautare? (da/nu): ");
+//                    String specifyRadius = userInput.readLine();
+//                    if ("da".equalsIgnoreCase(specifyRadius)) {
+//                        System.out.print("Introduceti raza de cautare (in kilometri): ");
+//                        String radius = userInput.readLine();
+//                        serverOutput.println(radius);
+//                    } else {
+//                        serverOutput.println("0"); // Raza implicita (0 km)
+//                    }
+                    
                     System.out.println("Prognoza meteo:");
-                    String line;
+
                     while (true) {
-                        line = in.readLine();
-                        if (line == null || line.equals("END")) {
+                        String line = serverInput.readLine();
+                        if (line == null || line.equals("DONE")) {
                             break;
                         }
                         System.out.println(line);
@@ -69,47 +67,50 @@ public class WeatherClient {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Eroare la conectarea la server: " + e.getMessage());
+            System.err.println("Eroare de conectare la server: " + e.getMessage());
         }
     }
 
     private static void handleAdminCommands(BufferedReader in, PrintWriter out, BufferedReader userInput) throws IOException {
         String command;
         while (true) {
-            System.out.print("Introduceți comanda admin (adaugare/actualizare/adaugaprognoza sau 'exitadmin' pentru a ieși): ");
+            System.out.print("Introduceti comanda tip admin (adauga locatie/actualizare/adauga prognoza sau 'exit admin' pentru a iesi): ");
             command = userInput.readLine();
 
-            if ("exitadmin".equalsIgnoreCase(command)) {
+            if ("exit admin".equalsIgnoreCase(command)) {
                 out.println(command);
                 break;
             }
 
-            out.println(command);
             switch (command.toLowerCase()) {
-                case "adaugare":
-                    System.out.print("Introduceți numele locației: ");
+                case "adauga locatie":
+                    System.out.print("Introduceti numele locatiei: ");
                     String name = userInput.readLine();
-                    System.out.print("Introduceți latitudinea: ");
+                    System.out.print("Introduceti latitudinea: ");
                     String latitude = userInput.readLine();
-                    System.out.print("Introduceți longitudinea: ");
+                    System.out.print("Introduceti longitudinea: ");
                     String longitude = userInput.readLine();
 
+                    out.println(command);
                     out.println(name);
                     out.println(latitude);
                     out.println(longitude);
 
                     String addResponse = in.readLine();
-                    System.out.println(addResponse);
+                    if (addResponse.contains("deja exista")) {
+                        System.out.println(addResponse);
+                    }
                     break;
 
                 case "actualizare":
-                    System.out.print("Introduceți numele locației de actualizat: ");
+                    System.out.print("Introduceti numele locatiei de actualizat: ");
                     String updateName = userInput.readLine();
                     System.out.print("Latitudine: ");
                     String newLatitude = userInput.readLine();
                     System.out.print("Longitudine: ");
                     String newLongitude = userInput.readLine();
 
+                    out.println(command);
                     out.println(updateName);
                     out.println(newLatitude);
                     out.println(newLongitude);
@@ -118,28 +119,35 @@ public class WeatherClient {
                     System.out.println(updateResponse);
                     break;
 
-                case "adaugaprognoza":
-                    System.out.print("Introduceți numele locației pentru care doriți să adăugați prognoza: ");
+                case "adauga prognoza":
+                    out.println(command);
+                    System.out.print("Introduceti numele locatiei pentru care doriti sa adaugati prognoza: ");
                     String forecastLocation = userInput.readLine();
                     out.println(forecastLocation);
 
-                    System.out.print("Introduceți data (YYYY-MM-DD): ");
-                    String date = userInput.readLine();
-                    System.out.print("Introduceți condiția meteo (e.g., Soare, Ploaie): ");
-                    String condition = userInput.readLine();
-                    System.out.print("Introduceți temperatura: ");
-                    String temperature = userInput.readLine();
+                    String locationResponse = in.readLine();
+                    if (!"OK".equalsIgnoreCase(locationResponse)) {
+                        System.out.println(locationResponse);
+                        break;
+                    } else {
+                        System.out.print("Introduceti data (YYYY-MM-DD): ");
+                        String date = userInput.readLine();
+                        System.out.print("Introduceti conditia meteo (e.g., Soare, Ploaie): ");
+                        String condition = userInput.readLine();
+                        System.out.print("Introduceti temperatura: ");
+                        String temperature = userInput.readLine();
 
-                    out.println(date);
-                    out.println(condition);
-                    out.println(temperature);
+                        out.println(date);
+                        out.println(condition);
+                        out.println(temperature);
 
-                    String forecastResponse = in.readLine();
-                    System.out.println(forecastResponse);
+                        String forecastResponse = in.readLine();
+                        System.out.println(forecastResponse);
+                    }
                     break;
 
                 default:
-                    System.out.println("Comandă necunoscută. Încercați din nou.");
+                    System.out.println("Comanda necunoscuta. Incercati din nou.");
                     break;
             }
         }

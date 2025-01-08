@@ -2,30 +2,33 @@ package org.example;
 
 import org.json.*;
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.file.*;
 import java.util.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 
 public class WeatherServer {
     private static List<Location> locations = new ArrayList<>();
-    private static String WEATHER_DATA_FILE = "C:\\Users\\CNAE\\Downloads\\ServerWeather\\src\\main\\resources\\weather_data.json";
-    private static String ADMIN_PASSWORD = "admin1234";
+    private static final String WEATHER_DATA_PATH = "ServerWeather/src/main/resources/weather_data.json";
+    private static final String ADMIN_PASSWORD = "admin1234";
+    private static final int PORT = 8080;
 
     public static void main(String[] args) throws IOException {
-        loadWeatherData(WEATHER_DATA_FILE);
-        ServerSocket serverSocket = new ServerSocket(12345);
-        System.out.println("Serverul e pornit pe portul 12345");
+        loadWeatherData(WEATHER_DATA_PATH);
+        ServerSocket serverSocket = new ServerSocket(PORT);
+        System.out.println("Serverul a pornit pe portul " + PORT);
 
         while (true) {
             Socket clientSocket = serverSocket.accept();
-            System.out.println("Client conectat de la: " + clientSocket.getInetAddress());
+            System.out.println("Client conectat: " + clientSocket.getInetAddress());
             handleClient(clientSocket);
         }
     }
 
-    private static void loadWeatherData(String fileName) throws IOException {
-        String content = new String(Files.readAllBytes(Paths.get(fileName)));
+    private static void loadWeatherData(String filePath) throws IOException {
+        Path path = Paths.get(filePath).toAbsolutePath();
+        String content = new String(Files.readAllBytes(path));
         JSONObject json = new JSONObject(content);
 
         JSONArray locationsArray = json.getJSONArray("locations");
@@ -50,6 +53,17 @@ public class WeatherServer {
         }
     }
 
+    private static Optional<Location> findLocation(String locationName) {
+        return locations.stream().filter(loc -> loc.getName().equalsIgnoreCase(locationName)).findFirst();
+    }
+
+    private static String formatLocationName(String locationName) {
+        if (locationName == null || locationName.isEmpty()) {
+            return locationName;
+        }
+        return locationName.substring(0, 1).toUpperCase() + locationName.substring(1).toLowerCase();
+    }
+
     private static void handleClient(Socket clientSocket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -58,11 +72,9 @@ public class WeatherServer {
 
         while ((requestedLocation = in.readLine()) != null) {
             System.out.println("Clientul a cerut: " + requestedLocation);
-
             if ("exit".equalsIgnoreCase(requestedLocation)) {
                 break;
             }
-
             if ("admin".equalsIgnoreCase(requestedLocation)) {
                 String password = in.readLine();
                 if (ADMIN_PASSWORD.equals(password)) {
@@ -74,11 +86,11 @@ public class WeatherServer {
             } else {
                 Optional<Location> found = findLocation(requestedLocation);
                 if (found.isPresent()) {
-                    out.println(found.get().getCurrentDayWeatherAndNext3Days());
-                    out.println("END");
+                    out.println(found.get().getUpcomingWeather());
+                    out.println("DONE");
                 } else {
                     out.println("Locatie necunoscuta");
-                    out.println("END");
+                    out.println("DONE");
                 }
             }
         }
@@ -90,21 +102,26 @@ public class WeatherServer {
     private static void handleAdminCommands(BufferedReader in, PrintWriter out) throws IOException {
         String command;
         while ((command = in.readLine()) != null) {
-            if ("exitadmin".equalsIgnoreCase(command)) {
+            if ("exit admin".equalsIgnoreCase(command)) {
                 break;
-            } else if ("adaugare".equalsIgnoreCase(command)) {
+            } else if ("adauga locatie".equalsIgnoreCase(command)) {
                 String name = in.readLine();
-                double latitude = Double.parseDouble(in.readLine());
-                double longitude = Double.parseDouble(in.readLine());
-
-                locations.add(new Location(name, latitude, longitude, new ArrayList<>()));
-                saveWeatherData();
-                out.println("Locatie adaugata cu succes.");
+                name = formatLocationName(name);
+                Optional<Location> existingLocation = findLocation(name);
+                if (existingLocation.isPresent()) {
+                    out.println("Locatia deja exista si nu poate fi adaugata din nou.");
+                } else {
+                    double latitude = Double.parseDouble(in.readLine());
+                    double longitude = Double.parseDouble(in.readLine());
+                    locations.add(new Location(name, latitude, longitude, new ArrayList<>()));
+                    saveWeatherData();
+                    out.println("Locatie adaugata cu succes.");
+                }
             } else if ("actualizare".equalsIgnoreCase(command)) {
                 String name = in.readLine();
-                Optional<Location> locOpt = findLocation(name);
-                if (locOpt.isPresent()) {
-                    Location loc = locOpt.get();
+                Optional<Location> location = findLocation(name);
+                if (location.isPresent()) {
+                    Location loc = location.get();
                     double latitude = Double.parseDouble(in.readLine());
                     double longitude = Double.parseDouble(in.readLine());
                     loc.setLatitude(latitude);
@@ -114,11 +131,17 @@ public class WeatherServer {
                 } else {
                     out.println("Locatia nu a fost gasita.");
                 }
-            } else if ("adaugaprognoza".equalsIgnoreCase(command)) {
+            } else if ("adauga prognoza".equalsIgnoreCase(command)) {
                 String name = in.readLine();
-                Optional<Location> locOpt = findLocation(name);
-                if (locOpt.isPresent()) {
-                    Location loc = locOpt.get();
+                Optional<Location> location = findLocation(name);
+                if (location.isPresent()) {
+                    Location loc = location.get();
+                    if (loc.getForecast().size() >= 3) {
+                        out.println("Eroare: Această locatie are deja 3 prognoze. Nu puteti adauga mai multe.");
+                        continue;
+                    } else {
+                        out.println("OK");
+                    }
                     String date = in.readLine();
                     String condition = in.readLine();
                     double temperature = Double.parseDouble(in.readLine());
@@ -135,37 +158,30 @@ public class WeatherServer {
         }
     }
 
-    private static Optional<Location> findLocation(String locationName) {
-        return locations.stream()
-                .filter(loc -> loc.getName().equalsIgnoreCase(locationName))
-                .findFirst();
-    }
-
     private static void saveWeatherData() {
         JSONObject json = new JSONObject();
         JSONArray locationsArray = new JSONArray();
 
-        for (Location loc : locations) {
-            JSONObject locObj = new JSONObject();
-            locObj.put("name", loc.getName());
-            locObj.put("latitude", loc.getLatitude());
-            locObj.put("longitude", loc.getLongitude());
+        for (Location location : locations) {
+            JSONObject locationObj = new JSONObject();
+            locationObj.put("name", location.getName());
+            locationObj.put("latitude", location.getLatitude());
+            locationObj.put("longitude", location.getLongitude());
 
             JSONArray weatherArray = new JSONArray();
-            for (Forecast f : loc.getForecast()) {
+            for (Forecast forecast : location.getForecast()) {
                 JSONObject forecastObj = new JSONObject();
-                forecastObj.put("date", f.date);
-                forecastObj.put("condition", f.weather);
-                forecastObj.put("temperature", f.temperature);
+                forecastObj.put("date", forecast.date);
+                forecastObj.put("condition", forecast.weather);
+                forecastObj.put("temperature", forecast.temperature);
                 weatherArray.put(forecastObj);
             }
-            locObj.put("weather", weatherArray);
-            locationsArray.put(locObj);
+            locationObj.put("weather", weatherArray);
+            locationsArray.put(locationObj);
         }
-
         json.put("locations", locationsArray);
 
-        try (FileWriter file = new FileWriter(WEATHER_DATA_FILE)) {
+        try (FileWriter file = new FileWriter(Paths.get(WEATHER_DATA_PATH).toAbsolutePath().toString())) {
             file.write(json.toString(4));
         } catch (IOException e) {
             e.printStackTrace();
