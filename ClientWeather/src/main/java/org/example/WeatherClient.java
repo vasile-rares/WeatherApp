@@ -44,25 +44,18 @@ public class WeatherClient {
 
                     String userLocation = command;
                     serverOutput.println(userLocation);
-                    
-//                    System.out.print("Doriti sa specificati o raza de cautare? (da/nu): ");
-//                    String specifyRadius = userInput.readLine();
-//                    if ("da".equalsIgnoreCase(specifyRadius)) {
-//                        System.out.print("Introduceti raza de cautare (in kilometri): ");
-//                        String radius = userInput.readLine();
-//                        serverOutput.println(radius);
-//                    } else {
-//                        serverOutput.println("0"); // Raza implicita (0 km)
-//                    }
-                    
-                    System.out.println("Prognoza meteo:");
 
-                    while (true) {
-                        String line = serverInput.readLine();
-                        if (line == null || line.equals("DONE")) {
-                            break;
+                    if (serverInput.readLine().equalsIgnoreCase("Locatie necunoscuta")) {
+                        System.out.println("Locatia introdusa nu a fost gasita.");
+                    } else {
+                        System.out.println("Prognoza meteo:");
+                        while (true) {
+                            String line = serverInput.readLine();
+                            if (line == null || line.equals("DONE")) {
+                                break;
+                            }
+                            System.out.println(line);
                         }
-                        System.out.println(line);
                     }
                 }
             }
