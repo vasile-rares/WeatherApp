@@ -31,29 +31,13 @@ public class LocationHandler {
         }
     }
 
-    public static void updateLocation(BufferedReader clientInput, PrintWriter clientOutput) throws IOException {
-        String name = clientInput.readLine();
-        Optional<Location> location = WeatherDataManager.findLocation(name);
-        if (location.isPresent()) {
-            Location loc = location.get();
-            double latitude = Double.parseDouble(clientInput.readLine());
-            double longitude = Double.parseDouble(clientInput.readLine());
-            loc.setLatitude(latitude);
-            loc.setLongitude(longitude);
-            WeatherDataManager.saveWeatherData();
-            clientOutput.println("Locatie actualizata cu succes.");
-        } else {
-            clientOutput.println("Locatia nu a fost gasita.");
-        }
-    }
-
     public static void addForecast(BufferedReader clientInput, PrintWriter clientOutput) throws IOException {
         String name = clientInput.readLine();
         Optional<Location> location = WeatherDataManager.findLocation(name);
         if (location.isPresent()) {
             Location loc = location.get();
             if (loc.getForecast().size() >= 3) {
-                clientOutput.println("Eroare: Această locatie are deja 3 prognoze. Nu puteti adauga mai multe.");
+                clientOutput.println("Eroare: Aceasta locatie are deja 3 prognoze. Nu puteti adauga mai multe.");
                 return;
             } else {
                 clientOutput.println("OK");

@@ -10,8 +10,8 @@ public class WeatherDataManager {
     private static List<Location> locations = new ArrayList<>();
     private static final String WEATHER_DATA_PATH = "ServerWeather/src/main/resources/weather_data.json";
 
-    public static void loadWeatherData(String filePath) throws IOException {
-        Path path = Paths.get(filePath).toAbsolutePath();
+    public static void loadWeatherData() throws IOException {
+        Path path = Paths.get(WEATHER_DATA_PATH).toAbsolutePath();
         String content = new String(Files.readAllBytes(path));
         JSONObject json = new JSONObject(content);
 

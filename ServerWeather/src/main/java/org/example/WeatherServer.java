@@ -8,7 +8,7 @@ public class WeatherServer {
     private static final int PORT = 8080;
 
     public static void main(String[] args) throws IOException {
-        WeatherDataManager.loadWeatherData("ServerWeather/src/main/resources/weather_data.json");
+        WeatherDataManager.loadWeatherData();
         ServerSocket serverSocket = new ServerSocket(PORT);
         System.out.println("Serverul a pornit pe portul " + PORT);
 
@@ -22,7 +22,6 @@ public class WeatherServer {
     private static void handleClient(Socket clientSocket) throws IOException {
         BufferedReader clientInput = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         PrintWriter clientOutput = new PrintWriter(clientSocket.getOutputStream(), true);
-
         String requestedLocation;
 
         while ((requestedLocation = clientInput.readLine()) != null) {

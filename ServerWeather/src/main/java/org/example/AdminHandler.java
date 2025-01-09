@@ -22,11 +22,9 @@ public class AdminHandler {
         while ((command = clientInput.readLine()) != null) {
             if ("exit admin".equalsIgnoreCase(command)) {
                 break;
-            } else if ("adauga locatie".equalsIgnoreCase(command)) {
+            } else if ("add location".equalsIgnoreCase(command)) {
                 LocationHandler.addLocation(clientInput, clientOutput);
-            } else if ("actualizare".equalsIgnoreCase(command)) {
-                LocationHandler.updateLocation(clientInput, clientOutput);
-            } else if ("adauga prognoza".equalsIgnoreCase(command)) {
+            } else if ("add forecast".equalsIgnoreCase(command)) {
                 LocationHandler.addForecast(clientInput, clientOutput);
             } else {
                 clientOutput.println("Comanda necunoscuta.");

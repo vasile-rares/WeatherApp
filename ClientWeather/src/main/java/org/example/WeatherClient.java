@@ -63,19 +63,16 @@ public class WeatherClient {
     private static void handleAdminCommands(BufferedReader serverInput, PrintWriter serverOutput) throws IOException {
         String command;
         while (true) {
-            command = promptUser("Introduceti comanda tip admin (adauga locatie/actualizare/adauga prognoza sau 'exit admin' pentru a iesi): ");
+            command = promptUser("Introduceti comanda tip admin \"add location\"/\"add forecast\" sau \"exit admin\" pentru a iesi): ");
             if ("exit admin".equalsIgnoreCase(command)) {
                 serverOutput.println(command);
                 break;
             }
             switch (command.toLowerCase()) {
-                case "adauga locatie":
+                case "add location":
                     addLocation(serverInput, serverOutput);
                     break;
-                case "actualizare":
-                    updateLocation(serverInput, serverOutput);
-                    break;
-                case "adauga prognoza":
+                case "add forecast":
                     addForecast(serverInput, serverOutput);
                     break;
                 default:
@@ -112,7 +109,7 @@ public class WeatherClient {
         String latitude = promptUser("Introduceti latitudinea: ");
         String longitude = promptUser("Introduceti longitudinea: ");
 
-        serverOutput.println("adauga locatie");
+        serverOutput.println("add location");
         serverOutput.println(name);
         serverOutput.println(latitude);
         serverOutput.println(longitude);
@@ -123,22 +120,8 @@ public class WeatherClient {
         }
     }
 
-    private static void updateLocation(BufferedReader serverInput, PrintWriter serverOutput) throws IOException {
-        String name = promptUser("Introduceti numele locatiei de actualizat: ");
-        String latitude = promptUser("Introcudecti noua latitudine: ");
-        String longitude = promptUser("Introcudecti noua longitudine: ");
-
-        serverOutput.println("actualizare");
-        serverOutput.println(name);
-        serverOutput.println(latitude);
-        serverOutput.println(longitude);
-
-        String response = serverInput.readLine();
-        System.out.println(response);
-    }
-
     private static void addForecast(BufferedReader serverInput, PrintWriter serverOutput) throws IOException {
-        serverOutput.println("adauga prognoza");
+        serverOutput.println("add forecast");
         String location = promptUser("Introduceti numele locatiei pentru care doriti sa adaugati prognoza: ");
         serverOutput.println(location);
 
