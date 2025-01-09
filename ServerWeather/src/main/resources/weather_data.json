@@ -1,115 +1,23 @@
 {
     "locations": [
         {
-            "latitude": 44.4268,
-            "name": "Bucuresti",
-            "weather": [
-                {
-                    "date": "2025-01-05",
-                    "condition": "Soareeee",
-                    "temperature": 8
-                },{
-                    "date": "2025-01-06",
-                    "condition": "Soare",
-                    "temperature": 3
-                },
-                {
-                    "date": "2025-01-07",
-                    "condition": "Noros",
-                    "temperature": 2
-                },
-                {
-                    "date": "2025-01-08",
-                    "condition": "Ploaie",
-                    "temperature": 1
-                }
-            ],
-            "longitude": 26.1025
-        },
-        {
-            "latitude": 46.7712,
-            "name": "Cluj-Napoca",
-            "weather": [
-                {
-                    "date": "2025-01-06",
-                    "condition": "Noros",
-                    "temperature": 2
-                },
-                {
-                    "date": "2025-01-07",
-                    "condition": "Vant",
-                    "temperature": 1
-                },
-                {
-                    "date": "2025-01-08",
-                    "condition": "Ploaie",
-                    "temperature": 0
-                }
-            ],
-            "longitude": 23.6236
-        },
-        {
-            "latitude": 45.7489,
-            "name": "Timisoara",
-            "weather": [
-                {
-                    "date": "2025-01-06",
-                    "condition": "Ploaie",
-                    "temperature": 4
-                },
-                {
-                    "date": "2025-01-07",
-                    "condition": "Noros",
-                    "temperature": 3
-                },
-                {
-                    "date": "2025-01-08",
-                    "condition": "Vant",
-                    "temperature": 2
-                }
-            ],
-            "longitude": 21.2087
-        },
-        {
-            "latitude": 47.1585,
-            "name": "Iasi",
-            "weather": [
-                {
-                    "date": "2025-01-06",
-                    "condition": "Ceata",
-                    "temperature": 1
-                },
-                {
-                    "date": "2025-01-07",
-                    "condition": "Noros",
-                    "temperature": 0
-                },
-                {
-                    "date": "2025-01-08",
-                    "condition": "Ploaie",
-                    "temperature": -1
-                }
-            ],
-            "longitude": 27.6014
-        },
-        {
             "latitude": 44.1598,
             "name": "Constanta",
             "weather": [
                 {
-                    "date": "2025-01-06",
+                    "date": "2025-01-09",
                     "condition": "Soare",
-                    "temperature": 5
+                    "temperature": 8
                 },
                 {
-                    "date": "2025-01-07",
+                    "date": "2025-01-10",
                     "condition": "Noros",
-                    "temperature": 4
+                    "temperature": 6
                 },
                 {
-                    "date": "2025-01-08",
-                    "condition": "Vant",
-                    "temperature": 3
+                    "date": "2025-01-11",
+                    "condition": "Ploaie",
+                    "temperature": 4
                 }
             ],
             "longitude": 28.6348
@@ -119,19 +27,19 @@
             "name": "Brasov",
             "weather": [
                 {
-                    "date": "2025-01-06",
+                    "date": "2025-01-09",
                     "condition": "Ninsoare",
+                    "temperature": -1
+                },
+                {
+                    "date": "2025-01-10",
+                    "condition": "Ceata",
                     "temperature": -2
                 },
                 {
-                    "date": "2025-01-07",
-                    "condition": "Ceata",
-                    "temperature": -3
-                },
-                {
-                    "date": "2025-01-08",
+                    "date": "2025-01-11",
                     "condition": "Senin",
-                    "temperature": -4
+                    "temperature": -3
                 }
             ],
             "longitude": 25.6012
@@ -141,22 +49,44 @@
             "name": "Oradea",
             "weather": [
                 {
-                    "date": "2025-01-06",
+                    "date": "2025-01-09",
                     "condition": "Noros",
                     "temperature": 1
                 },
                 {
-                    "date": "2025-01-07",
+                    "date": "2025-01-10",
                     "condition": "Vant",
                     "temperature": 0
                 },
                 {
-                    "date": "2025-01-08",
+                    "date": "2025-01-11",
                     "condition": "Ceata",
                     "temperature": -1
                 }
             ],
             "longitude": 21.9189
+        },
+        {
+            "latitude": 44.4268,
+            "name": "Ploiesti",
+            "weather": [
+                {
+                    "date": "2025-01-09",
+                    "condition": "Soare",
+                    "temperature": 9
+                },
+                {
+                    "date": "2025-01-10",
+                    "condition": "Noros",
+                    "temperature": 7
+                },
+                {
+                    "date": "2025-01-11",
+                    "condition": "Vant",
+                    "temperature": 5
+                }
+            ],
+            "longitude": 26.0355
         }
     ]
 }

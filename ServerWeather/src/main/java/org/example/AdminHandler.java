@@ -10,10 +10,10 @@ public class AdminHandler {
     public static void handleAdmin(BufferedReader clientInput, PrintWriter clientOutput) throws IOException {
         String password = clientInput.readLine();
         if (ADMIN_PASSWORD.equals(password)) {
-            clientOutput.println("ACCEPTED");
+            clientOutput.println("GRANTED");
             handleAdminCommands(clientInput, clientOutput);
         } else {
-            clientOutput.println("REJECTED");
+            clientOutput.println("DENIED");
         }
     }
 

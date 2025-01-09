@@ -11,7 +11,6 @@ public class WeatherClient {
         try (Socket clientSocket = new Socket("localhost", SERVER_PORT)) {
             BufferedReader serverInput = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             PrintWriter serverOutput = new PrintWriter(clientSocket.getOutputStream(), true);
-//            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 
             while (true) {
                 String command = promptUser("Introduceti locatia dorita (sau 'exit' pentru a inchide, 'admin' pentru admin): ");
@@ -22,32 +21,42 @@ public class WeatherClient {
         }
     }
 
-    private static void handleCommand(String command, BufferedReader serverInput, PrintWriter serverOutput) throws IOException {
-        if ("exit".equalsIgnoreCase(command)) {
-            serverOutput.println(command);
-            return;
-        }
+    private static void mainMenu() {
+        System.out.println("=============================================");
+        System.out.println(" - Program vreme - ");
+        System.out.println("1. Introduceti o locatie pentru prognoza meteo");
+        System.out.println("2. \"admin\" - Acces Admin");
+        System.out.println("3. \"exit\" - Iesire din aplicatie");
+        System.out.println("=============================================");
+    }
 
-        if ("admin".equalsIgnoreCase(command)) {
-            handleAdminLogin(serverInput, serverOutput);
-        } else {
-            handleLocationRequest(command, serverInput, serverOutput);
+    private static void handleCommand(String command, BufferedReader serverInput, PrintWriter serverOutput) throws IOException {
+        switch (command.toLowerCase()) {
+            case "exit":
+                serverOutput.println("exit");
+                break;
+            case "admin":
+                handleAdminLogin(serverInput, serverOutput);
+                break;
+            default:
+                handleLocationRequest(command, serverInput, serverOutput);
+                break;
         }
     }
 
     private static void handleAdminLogin(BufferedReader serverInput, PrintWriter serverOutput) throws IOException {
-        String password = promptUser("Introduceti parola pentru modul admin: ");
+        String password = promptUser("Introduceti parola pentru admin: ");
         serverOutput.println("admin");
         serverOutput.println(password);
 
         String adminResponse = serverInput.readLine();
-        System.out.println("Raspunsul serverului: " + adminResponse);
-        if ("ACCEPTED".equalsIgnoreCase(adminResponse)) {
+        System.out.println("ACCESS " + adminResponse);
+        if ("GRANTED".equalsIgnoreCase(adminResponse)) {
             isAdmin = true;
             handleAdminCommands(serverInput, serverOutput);
             isAdmin = false;
         } else {
-            System.out.println("Parola incorecta. Incercare esuata.");
+            System.out.println("Parola nu este corecta. Va rugam să incercati din nou.");
         }
     }
 
@@ -78,16 +87,15 @@ public class WeatherClient {
 
     private static void handleLocationRequest(String location, BufferedReader serverInput, PrintWriter serverOutput) throws IOException {
         if (isAdmin) {
-            System.out.println("Trebuie sa iesi din modul admin inainte de a cere o locatie.");
+            System.out.println("Iesiti din modul administrator pentru a solicita o locatie.");
             return;
         }
 
         serverOutput.println(location);
         String response = serverInput.readLine();
         if ("Locatie necunoscuta".equalsIgnoreCase(response)) {
-            System.out.println("Locatia introdusa nu a fost gasita.");
+            System.out.println("Locatia introdusa nu este disponibila.");
         } else {
-            System.out.println("Prognoza meteo:");
             printWeatherForecast(serverInput);
         }
     }
@@ -117,8 +125,8 @@ public class WeatherClient {
 
     private static void updateLocation(BufferedReader serverInput, PrintWriter serverOutput) throws IOException {
         String name = promptUser("Introduceti numele locatiei de actualizat: ");
-        String latitude = promptUser("Latitudine: ");
-        String longitude = promptUser("Longitudine: ");
+        String latitude = promptUser("Introcudecti noua latitudine: ");
+        String longitude = promptUser("Introcudecti noua longitudine: ");
 
         serverOutput.println("actualizare");
         serverOutput.println(name);
@@ -140,8 +148,8 @@ public class WeatherClient {
             return;
         } else {
             String date = promptUser("Introduceti data (YYYY-MM-DD): ");
-            String condition = promptUser("Introduceti conditia meteo (e.g., Soare, Ploaie): ");
-            String temperature = promptUser("Introduceti temperatura: ");
+            String condition = promptUser("Introduceti conditia meteo (ex: Soare, Ploaie, Vant): ");
+            String temperature = promptUser("Introduceti temperatura estimata: ");
 
             serverOutput.println(date);
             serverOutput.println(condition);

@@ -53,11 +53,14 @@ class Location {
         StringBuilder sb = new StringBuilder("Locatie: ").append(name).append("\n");
 
         if (filteredForecast.isEmpty()) {
-            sb.append("Nu exista prognoza pentru ziua curenta.\n");
+            sb.append("❌ Nu există prognoză disponibilă pentru zilele următoare. ❌\n");
         } else {
+            sb.append("⛅ Prognoza meteo pentru ").append(name).append(":\n");
             for (Forecast f : filteredForecast) {
-                String datePrefix = (LocalDate.parse(f.getDate()).isEqual(today)) ? "Prognoza pentru ziua de azi: " : "Prognoza pentru " + f.getDate() + ": ";
-                sb.append(datePrefix).append(f.getWeather()).append(", ").append(f.getTemperature()).append("°C\n");
+                String datePrefix = (LocalDate.parse(f.getDate()).isEqual(today)) ? "👉 Astăzi: " : "👉 " + f.getDate() + ": ";
+                sb.append(datePrefix)
+                        .append(f.getWeather()).append(" | ")
+                        .append(f.getTemperature()).append("°C\n");
             }
         }
 
