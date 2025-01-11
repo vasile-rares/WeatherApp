@@ -7,9 +7,10 @@ import java.util.Optional;
 public class LocationHandler {
 
     public static void handleLocationRequest(String requestedLocation, BufferedReader clientInput, PrintWriter clientOutput) throws IOException {
-        Optional<Location> found = WeatherDataManager.findLocation(requestedLocation);
-        if (found.isPresent()) {
-            clientOutput.println(found.get().getUpcomingWeather());
+        Optional<Location> location = WeatherDataManager.findLocation(requestedLocation);
+        if (location.isPresent()) {
+            Location loc = location.get();
+            clientOutput.println(loc.getUpcomingWeather());
             clientOutput.println("DONE");
         } else {
             clientOutput.println("Locatie necunoscuta");
@@ -19,14 +20,13 @@ public class LocationHandler {
 
     public static void addLocation(BufferedReader clientInput, PrintWriter clientOutput) throws IOException {
         String name = clientInput.readLine();
-        name = WeatherDataManager.formatLocationName(name);
         Optional<Location> existingLocation = WeatherDataManager.findLocation(name);
         if (existingLocation.isPresent()) {
             clientOutput.println("Locatia deja exista si nu poate fi adaugata din nou.");
         } else {
             double latitude = Double.parseDouble(clientInput.readLine());
             double longitude = Double.parseDouble(clientInput.readLine());
-            WeatherDataManager.addLocation(new Location(name, latitude, longitude, new ArrayList<>()));
+            WeatherDataManager.addLocation(name, latitude, longitude);
             clientOutput.println("Locatie adaugata cu succes.");
         }
     }
@@ -43,11 +43,11 @@ public class LocationHandler {
                 clientOutput.println("OK");
             }
             String date = clientInput.readLine();
-            String condition = clientInput.readLine();
+            String weather = clientInput.readLine();
             double temperature = Double.parseDouble(clientInput.readLine());
 
-            loc.getForecast().add(new Forecast(date, condition, temperature));
-            WeatherDataManager.saveWeatherData();
+            Forecast forecast = new Forecast(date, weather, temperature);
+            WeatherDataManager.addForecast(loc.getName(), forecast);
             clientOutput.println("Prognoza adaugata cu succes.");
         } else {
             clientOutput.println("Locatia nu a fost gasita.");

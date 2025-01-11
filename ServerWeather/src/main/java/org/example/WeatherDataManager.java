@@ -1,85 +1,101 @@
 package org.example;
 
-import org.json.*;
+import com.google.gson.Gson;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class WeatherDataManager {
-    private static List<Location> locations = new ArrayList<>();
-    private static final String WEATHER_DATA_PATH = "ServerWeather/src/main/resources/weather_data.json";
 
-    public static void loadWeatherData() throws IOException {
-        Path path = Paths.get(WEATHER_DATA_PATH).toAbsolutePath();
-        String content = new String(Files.readAllBytes(path));
-        JSONObject json = new JSONObject(content);
+    // Adaugă o locație în baza de date și returnează ID-ul acesteia
+    public static int addLocation(String name, double latitude, double longitude) {
+        String insertLocation = "INSERT INTO locations (name, latitude, longitude) VALUES (?, ?, ?) RETURNING id";
 
-        JSONArray locationsArray = json.getJSONArray("locations");
-        for (int i = 0; i < locationsArray.length(); i++) {
-            JSONObject locObj = locationsArray.getJSONObject(i);
-            String name = locObj.getString("name");
-            double latitude = locObj.getDouble("latitude");
-            double longitude = locObj.getDouble("longitude");
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(insertLocation)) {
 
-            List<Forecast> forecastList = new ArrayList<>();
-            JSONArray weatherArray = locObj.getJSONArray("weather");
-            for (int j = 0; j < weatherArray.length(); j++) {
-                JSONObject forecastObj = weatherArray.getJSONObject(j);
-                forecastList.add(new Forecast(
-                        forecastObj.getString("date"),
-                        forecastObj.getString("condition"),
-                        forecastObj.getDouble("temperature")
-                ));
+            stmt.setString(1, name);
+            stmt.setDouble(2, latitude);
+            stmt.setDouble(3, longitude);
+            ResultSet resultSet = stmt.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1); // Returnează ID-ul locației
             }
-
-            locations.add(new Location(name, latitude, longitude, forecastList));
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return -1; // Eroare
     }
 
-    public static void saveWeatherData() {
-        JSONObject json = new JSONObject();
-        JSONArray locationsArray = new JSONArray();
+    // Adaugă prognoze pentru o locație existentă
+    public static void addForecast(String name, Forecast forecast) {
+        String findLocationId = "SELECT id FROM locations WHERE name = ?";
+        String insertForecast = "INSERT INTO forecasts (location_id, date, weather, temperature) VALUES (?, ?, ?, ?)";
 
-        for (Location location : locations) {
-            JSONObject locationObj = new JSONObject();
-            locationObj.put("name", location.getName());
-            locationObj.put("latitude", location.getLatitude());
-            locationObj.put("longitude", location.getLongitude());
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement findStmt = connection.prepareStatement(findLocationId);
+             PreparedStatement insertStmt = connection.prepareStatement(insertForecast)) {
 
-            JSONArray weatherArray = new JSONArray();
-            for (Forecast forecast : location.getForecast()) {
-                JSONObject forecastObj = new JSONObject();
-                forecastObj.put("date", forecast.getDate());
-                forecastObj.put("condition", forecast.getWeather());
-                forecastObj.put("temperature", forecast.getTemperature());
-                weatherArray.put(forecastObj);
+            findStmt.setString(1, name);
+            ResultSet resultSet = findStmt.executeQuery();
+
+            if (resultSet.next()) {
+                int locationId = resultSet.getInt("id");
+
+                // Adaugă prognoza în baza de date
+                insertStmt.setInt(1, locationId);
+                insertStmt.setString(2, forecast.getDate());
+                insertStmt.setString(3, forecast.getWeather());
+                insertStmt.setDouble(4, forecast.getTemperature());
+                insertStmt.executeUpdate();
             }
-            locationObj.put("weather", weatherArray);
-            locationsArray.put(locationObj);
-        }
-        json.put("locations", locationsArray);
-
-        try (FileWriter file = new FileWriter(Paths.get(WEATHER_DATA_PATH).toAbsolutePath().toString())) {
-            file.write(json.toString(4));
-        } catch (IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public static String formatLocationName(String locationName) {
-        if (locationName == null || locationName.isEmpty()) {
-            return locationName;
+    // Încarcă locația și prognozele asociate
+    public static Optional<Location> findLocation(String name) {
+        String selectLocation = "SELECT id, latitude, longitude FROM locations WHERE name = ?";
+        String selectForecasts = "SELECT date, weather, temperature FROM forecasts WHERE location_id = ?";
+
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement locationStmt = connection.prepareStatement(selectLocation);
+             PreparedStatement forecastStmt = connection.prepareStatement(selectForecasts)) {
+
+            // Găsește locația
+            locationStmt.setString(1, name);
+            ResultSet locationResult = locationStmt.executeQuery();
+
+            if (locationResult.next()) {
+                int locationId = locationResult.getInt("id");
+                double latitude = locationResult.getDouble("latitude");
+                double longitude = locationResult.getDouble("longitude");
+
+                // Găsește prognozele
+                forecastStmt.setInt(1, locationId);
+                ResultSet forecastResult = forecastStmt.executeQuery();
+
+                List<Forecast> forecasts = new ArrayList<>();
+                while (forecastResult.next()) {
+                    forecasts.add(new Forecast(
+                            forecastResult.getString("date"),
+                            forecastResult.getString("weather"),
+                            forecastResult.getDouble("temperature")
+                    ));
+                }
+
+                Location location = new Location(locationId, name, latitude, longitude, forecasts);
+                return Optional.of(location); // Returnează locația într-un Optional
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return locationName.substring(0, 1).toUpperCase() + locationName.substring(1).toLowerCase();
+
+        return Optional.empty(); // Dacă nu s-a găsit locația, returnează un Optional gol
     }
 
-    public static Optional<Location> findLocation(String locationName) {
-        return locations.stream().filter(loc -> loc.getName().equalsIgnoreCase(locationName)).findFirst();
-    }
-
-    public static void addLocation(Location location) {
-        locations.add(location);
-        saveWeatherData();
-    }
 }

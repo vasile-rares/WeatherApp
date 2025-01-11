@@ -8,7 +8,6 @@ public class WeatherServer {
     private static final int PORT = 8080;
 
     public static void main(String[] args) throws IOException {
-        WeatherDataManager.loadWeatherData();
         ServerSocket serverSocket = new ServerSocket(PORT);
         System.out.println("Serverul a pornit pe portul " + PORT);
 

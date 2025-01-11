@@ -6,16 +6,22 @@ import java.util.stream.Collectors;
 import java.util.Comparator;
 
 class Location {
+    private int id;
     private String name;
     private double latitude;
     private double longitude;
     private List<Forecast> forecast;
 
-    public Location(String name, double latitude, double longitude, List<Forecast> forecast) {
+    public Location(int id, String name, double latitude, double longitude, List<Forecast> forecast) {
+        this.id = id;
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
         this.forecast = forecast;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {
