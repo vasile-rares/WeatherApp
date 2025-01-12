@@ -22,4 +22,13 @@ class Forecast {
     public double getTemperature() {
         return temperature;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Forecast forecast = (Forecast) obj;
+        return this.date.equals(forecast.date);
+    }
 }

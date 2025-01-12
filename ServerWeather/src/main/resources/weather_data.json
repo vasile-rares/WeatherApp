@@ -1,92 +1,62 @@
 {
-    "locations": [
+  "locations": [
+    {
+      "name": "Tecuci",
+      "latitude": 31.0,
+      "longitude": 31.0,
+      "forecast": [
         {
-            "latitude": 44.1598,
-            "name": "Constanta",
-            "weather": [
-                {
-                    "date": "2025-01-09",
-                    "condition": "Soare",
-                    "temperature": 8
-                },
-                {
-                    "date": "2025-01-10",
-                    "condition": "Noros",
-                    "temperature": 6
-                },
-                {
-                    "date": "2025-01-11",
-                    "condition": "Ploaie",
-                    "temperature": 4
-                }
-            ],
-            "longitude": 28.6348
+          "date": "2025-01-11",
+          "weather": "Soare",
+          "temperature": 3.0
         },
         {
-            "latitude": 45.658,
-            "name": "Brasov",
-            "weather": [
-                {
-                    "date": "2025-01-09",
-                    "condition": "Ninsoare",
-                    "temperature": -1
-                },
-                {
-                    "date": "2025-01-10",
-                    "condition": "Ceata",
-                    "temperature": -2
-                },
-                {
-                    "date": "2025-01-11",
-                    "condition": "Senin",
-                    "temperature": -3
-                }
-            ],
-            "longitude": 25.6012
+          "date": "2025-01-12",
+          "weather": "Vant",
+          "temperature": 4.0
         },
         {
-            "latitude": 47.0465,
-            "name": "Oradea",
-            "weather": [
-                {
-                    "date": "2025-01-09",
-                    "condition": "Noros",
-                    "temperature": 1
-                },
-                {
-                    "date": "2025-01-10",
-                    "condition": "Vant",
-                    "temperature": 0
-                },
-                {
-                    "date": "2025-01-11",
-                    "condition": "Ceata",
-                    "temperature": -1
-                }
-            ],
-            "longitude": 21.9189
-        },
-        {
-            "latitude": 44.4268,
-            "name": "Ploiesti",
-            "weather": [
-                {
-                    "date": "2025-01-09",
-                    "condition": "Soare",
-                    "temperature": 9
-                },
-                {
-                    "date": "2025-01-10",
-                    "condition": "Noros",
-                    "temperature": 7
-                },
-                {
-                    "date": "2025-01-11",
-                    "condition": "Vant",
-                    "temperature": 5
-                }
-            ],
-            "longitude": 26.0355
+          "date": "2025-01-13",
+          "weather": "Soare",
+          "temperature": 13.0
         }
-    ]
+      ]
+    },
+    {
+      "name": "Iasi",
+      "latitude": 31.0,
+      "longitude": 44.0,
+      "forecast": []
+    },
+    {
+      "name": "Craiova",
+      "latitude": 13.0,
+      "longitude": 31.0,
+      "forecast": [
+        {
+          "date": "2024-12-05",
+          "weather": "Soare",
+          "temperature": 2.0
+        }
+      ]
+    },
+    {
+      "name": "Bucuresti",
+      "latitude": 23.0,
+      "longitude": 1.0,
+      "forecast": []
+    },
+    {
+      "name": "Constanta",
+      "latitude": 31.0,
+      "longitude": 67.0,
+      "forecast": []
+    },
+    {
+      "name": "Ploiesti",
+      "latitude": 93.0,
+      "longitude": 12.0,
+      "forecast": []
+    }
+  ]
 }

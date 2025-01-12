@@ -5,6 +5,7 @@ import java.net.Socket;
 
 public class WeatherClient {
     private static final int SERVER_PORT = 8080;
+    private static boolean isRunning = true;
     private static boolean isAdmin = false;
 
     public static void main(String[] args) {
@@ -12,28 +13,21 @@ public class WeatherClient {
             BufferedReader serverInput = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             PrintWriter serverOutput = new PrintWriter(clientSocket.getOutputStream(), true);
 
-            while (true) {
+            while (isRunning) {
                 String command = promptUser("Introduceti locatia dorita (sau 'exit' pentru a inchide, 'admin' pentru admin): ");
                 handleCommand(command, serverInput, serverOutput);
             }
+            System.out.println("Clientul a fost oprit.");
         } catch (IOException e) {
             System.err.println("Eroare de conectare la server: " + e.getMessage());
         }
-    }
-
-    private static void mainMenu() {
-        System.out.println("=============================================");
-        System.out.println(" - Program vreme - ");
-        System.out.println("1. Introduceti o locatie pentru prognoza meteo");
-        System.out.println("2. \"admin\" - Acces Admin");
-        System.out.println("3. \"exit\" - Iesire din aplicatie");
-        System.out.println("=============================================");
     }
 
     private static void handleCommand(String command, BufferedReader serverInput, PrintWriter serverOutput) throws IOException {
         switch (command.toLowerCase()) {
             case "exit":
                 serverOutput.println("exit");
+                isRunning = false;
                 break;
             case "admin":
                 handleAdminLogin(serverInput, serverOutput);
@@ -115,7 +109,7 @@ public class WeatherClient {
         serverOutput.println(longitude);
 
         String response = serverInput.readLine();
-        if (response.contains("deja exista")) {
+        if (response.contains("Eroare")) {
             System.out.println(response);
         }
     }
@@ -125,10 +119,9 @@ public class WeatherClient {
         String location = promptUser("Introduceti numele locatiei pentru care doriti sa adaugati prognoza: ");
         serverOutput.println(location);
 
-        String response = serverInput.readLine();
-        if (!"OK".equalsIgnoreCase(response)) {
-            System.out.println(response);
-            return;
+        String locationValidation = serverInput.readLine();
+        if (!"OK".equalsIgnoreCase(locationValidation)) {
+            System.out.println(locationValidation);
         } else {
             String date = promptUser("Introduceti data (YYYY-MM-DD): ");
             String condition = promptUser("Introduceti conditia meteo (ex: Soare, Ploaie, Vant): ");

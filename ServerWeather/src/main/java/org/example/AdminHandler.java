@@ -1,13 +1,12 @@
 package org.example;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Optional;
+import java.sql.SQLException;
 
 public class AdminHandler {
     private static final String ADMIN_PASSWORD = "admin1234";
 
-    public static void handleAdmin(BufferedReader clientInput, PrintWriter clientOutput) throws IOException {
+    public static void handleAdmin(BufferedReader clientInput, PrintWriter clientOutput) throws IOException, SQLException {
         String password = clientInput.readLine();
         if (ADMIN_PASSWORD.equals(password)) {
             clientOutput.println("GRANTED");
@@ -17,7 +16,7 @@ public class AdminHandler {
         }
     }
 
-    private static void handleAdminCommands(BufferedReader clientInput, PrintWriter clientOutput) throws IOException {
+    private static void handleAdminCommands(BufferedReader clientInput, PrintWriter clientOutput) throws IOException, SQLException {
         String command;
         while ((command = clientInput.readLine()) != null) {
             if ("exit admin".equalsIgnoreCase(command)) {
